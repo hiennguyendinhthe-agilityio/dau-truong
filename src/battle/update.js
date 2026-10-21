@@ -78,8 +78,8 @@ function updF(f, dt) {
   // Di chuyển
   let mx = 0, my = 0;
   if (manual && fight) [mx, my] = inputVec(); else if (ok) [mx, my] = ai(f, o, dt);
-  const sp = (70 + f.spd * .9) * (para ? .55 : 1) * (f.slowT > 0 ? .55 : 1) * (f.wind ? .25 : 1) * (f.trailT > 0 ? 1.3 : 1) * (f.counterT > 0 ? .15 : 1) * (f.fortT > 0 ? .6 : 1) * (f.swing ? .4 : 1);
-  const k = Math.min(1, dt * 10);
+  const tm = terrainMove(f), sp = (70 + f.spd * .9) * tm.spd * (para ? .55 : 1) * (f.slowT > 0 ? .55 : 1) * (f.wind ? .25 : 1) * (f.trailT > 0 ? 1.3 : 1) * (f.counterT > 0 ? .15 : 1) * (f.fortT > 0 ? .6 : 1) * (f.swing ? .4 : 1);
+  const k = Math.min(1, dt * 10 * tm.grip);
   f.vx += (mx * sp - f.vx) * k; f.vy += (my * sp - f.vy) * k;
   f.x += (f.vx + f.kx) * dt; f.y += (f.vy + f.ky) * dt; clampF(f);
   if (!fight) return;
@@ -167,6 +167,7 @@ function updProj(dt) {
       else if (t.iframe > 0) { if (!p.dodged) { p.dodged = true; perfectDodge(t); } }
       else { doHit(p.owner, t, p.mv, p.mult, { kb: p.push ? p.push / 110 : 1 }); if (p.pierce) p.hit = true; else p.life = 0; burst(p.x, p.y, p.col, 6, 90); }
     }
+    if (p.life > 0 && projBlocked(p)) p.life = 0;
     if (p.x < AR.x0 || p.x > AR.x1 || p.y < AR.y0 || p.y > AR.y1) p.life = 0;
   }
   G.proj = G.proj.filter(p => p.life > 0);
@@ -180,7 +181,7 @@ function update(dt) {
   for (const b of G.bubbles) { b.y -= 14 * dt; b.life -= dt; }
   G.bubbles = G.bubbles.filter(b => b.life > 0);
   if (G.phase === 'intro') {
-    if (G.pt > 1.8) { G.phase = 'fight'; G.fightBanner = 1.35; Snd.fight(); Snd.startBgm(); sendOut(0); sendOut(1); }
+    if (G.pt > 1.8) { G.phase = 'fight'; G.fightBanner = 1.35; Snd.fight(); Snd.startBgm(); sendOut(0); sendOut(1); startMapWeather(); }
   }
   else {
     if (G.phase === 'fight') G.time += dt; else G.endT += dt;
@@ -195,7 +196,7 @@ function update(dt) {
     for (const S of G.sides) if (S.active) updF(S.active, dt);
     for (const q of G.queue) q.t -= dt;
     G.queue = G.queue.filter(q => { if (q.t <= 0) { sendOut(q.side); return false; } return true; });
-    updWeather(dt); updHazards(dt); updProj(dt);
+    updWeather(dt); updHazards(dt); updTerrain(dt); updProj(dt);
     for (const t of G.teles) {
       t.t += dt;
       if (t.t < 0) { if (t.track && alive(t.track)) { t.x = t.track.x; t.y = t.track.y; } continue; }

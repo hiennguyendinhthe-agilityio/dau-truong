@@ -46,6 +46,7 @@ const isAI = f => f.side === 1 || G.auto;
 function newBattle(pt, et) {
   pt.concat(et).forEach(d => ensurePMD(d.dex));
   G = {
+    mapMet: [],
     sides: [{ name: 'BẠN', team: pt.map(d => new Fighter(d, 0)), active: null, shown: null, col: '#4aa8ff' }, { name: 'ĐỐI THỦ', team: et.map(d => new Fighter(d, 1)), active: null, shown: null, col: '#ff5a5a' }],
     weather: null, proj: [], parts: [], floats: [], teles: [], beams: [], rings: [], balls: [], debris: [], wp: [], queue: [], hazards: [], bolts: [],
     bubbles: [], fightBanner: 0, koBanner: null, trainerCheer: 0, hc: { n: 0, t: 0 }, slowmo: 0, clock: 0, hbT: 0,

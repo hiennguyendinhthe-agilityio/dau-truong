@@ -200,4 +200,4 @@ function resolveTele(t) {
   }
   if (t.k === 'ring') { G.rings.push({ x: f.x, y: f.y - 12, r: 12, mr: t.r, life: .35, max: .35, col }); G.shake += 4; Snd.wave(t.mv.t, f.x); if (alive(o) && Math.hypot(o.x - f.x, o.y - f.y) < t.r + 8) doHit(f, o, t.mv); }
 }
-function clampF(f) { f.x = Math.max(AR.x0 + 16, Math.min(AR.x1 - 16, f.x)); f.y = Math.max(AR.y0 + 56, Math.min(AR.y1 - 6, f.y)); }
+function clampF(f) { pushOutRocks(f); f.x = Math.max(AR.x0 + 16, Math.min(AR.x1 - 16, f.x)); f.y = Math.max(AR.y0 + 56, Math.min(AR.y1 - 6, f.y)); }

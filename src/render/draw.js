@@ -148,7 +148,7 @@ function render(now) {
   let sx = 0, sy = 0; if (G && G.shake > 0) { sx = Math.sin(t * 67) * G.shake * .9; sy = Math.cos(t * 53) * G.shake * .9; }
   ctx.save(); ctx.translate(sx, sy);
   ctx.drawImage(BG, 0, 0);
-  ctx.fillStyle = 'rgba(200,230,255,.35)'; for (let y = AR.y0; y < H; y += 7) { const x = AR.x1 + 3 + Math.sin(t * 2 + y * .13) * 3; ctx.fillRect(x | 0, y, 4, 1); }
+  drawTerrainFX(t);
   if (!G) { ctx.restore(); return; }
 
   // Huấn luyện viên đứng ở cổng dưới, nhảy lên khi đội bạn ra đòn mạnh
@@ -172,7 +172,8 @@ function render(now) {
   }
   ctx.globalAlpha = 1;
   const fs = G.sides.map(S => S.active || (S.shown && S.shown.dying >= 0 && !S.shown.fainted ? S.shown : null)).filter(Boolean).sort((a, b) => a.y - b.y);
-  fs.forEach(f => drawF(f, t));
+  // Pokémon và chướng ngại vẽ theo chiều sâu (thấp hơn = gần hơn = vẽ sau)
+  fs.map(f => ({ y: f.y, d: () => drawF(f, t) })).concat(MAP.rocks.map(r => ({ y: r.y, d: () => drawRock(r) }))).sort((a, b) => a.y - b.y).forEach(o => o.d());
   ctx.globalCompositeOperation = 'lighter';
   for (const p of G.proj) {
     if (p.k === 'tornado') { for (let i = 0; i < 4; i++) { ctx.globalAlpha = .5 - i * .08; ctx.strokeStyle = '#e8e0ff'; ctx.lineWidth = 2; const r2 = 6 + i * 4; ctx.beginPath(); ctx.ellipse(p.x + Math.sin(t * 20 + i) * 3, p.y + 10 - i * 7, r2, r2 * .35, 0, t * 12 + i, t * 12 + i + 4.5); ctx.stroke(); } continue; }
@@ -225,6 +226,7 @@ function render(now) {
     G.sides[0].team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 - (1 - p) * 240 - 105 + k * 35, 240, 32, 32));
     txt('VS', 180, 320, 30, '#ffcf3a', 'center');
     txt('ĐỐI THỦ', 180 + (1 - p) * 200, 370, 30, '#ff5a5a', 'center', F2);
+    txt('SÂN: ' + MAP.n, 180, 470, 24, '#ffcf3a', 'center', F2);
     G.sides[1].team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 + (1 - p) * 240 - 105 + k * 35, 390, 32, 32));
   }
   if (G.phase === 'end' && G.endT > .9) {

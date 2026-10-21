@@ -15,13 +15,13 @@ sw.js                   Lưu game vào máy để chơi không cần mạng (FIL
 apple-touch-icon.png    Biểu tượng khi "Thêm vào MH chính" trên iPhone
 src/
   core/      config.js (kích thước, canvas, font), utils.js (hàm màu)
-  data/      types.js (18 hệ, tương khắc, vật phẩm, thời tiết)
+  data/      types.js (18 hệ, tương khắc, vật phẩm, thời tiết), maps.js (6 sân đấu)
              pokemon.js (danh sách Pokémon, chỉ số, chiêu)
              pmd-anim.js (thông số hoạt ảnh), music.js (bản nhạc)
   audio/     sound.js (hiệu ứng âm thanh, nhạc nền)
   render/    sprites.js (hình tạm), sprite-loader.js (tải hình thật),
              arena.js (nền sân), draw.js (vẽ mọi thứ trên màn hình)
-  battle/    state.js (trận đấu, Fighter), effects.js, combat.js (sát thương, chiêu),
+  battle/    state.js (trận đấu, Fighter), terrain.js (địa hình sân), effects.js, combat.js (sát thương, chiêu),
              ai.js (AI + phím), update.js (cập nhật mỗi khung hình)
   ui/        controls.js (nút, cảm ứng, bàn phím), menu.js (màn chọn đội)
   styles/    main.css, fonts.css
@@ -52,3 +52,9 @@ npm test             # tạo lại sw.js + chạy kiểm thử (chọn đội, c
 ```
 
 Chỉ đẩy lên GitHub khi `npm test` báo "Tất cả đều ĐẠT". GitHub Pages tự cập nhật link sau 1–2 phút.
+
+## Thêm một sân đấu
+
+Thêm một mục vào `MAPS` trong `src/data/maps.js`: màu nền, kiểu trang trí, vùng địa hình (water / lava / grass / ice),
+chướng ngại (rocks) và thời tiết mở trận. Đặt vùng và chướng ngại tránh 2 điểm ra sân (180, 228) và (180, 515).
+Chạy `npm test`: kiểm thử tự cho AI đánh một trận trên mỗi sân.

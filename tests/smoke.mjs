@@ -44,10 +44,14 @@ await touch('touchStart', b[0], b[1]); await page.waitForTimeout(80); await touc
 ok(await page.evaluate(() => G.sides[0].active.cdS > 1), 'Nút CHIÊU ra chiêu');
 
 // 3. AI tự đánh nhiều trận, trận nào cũng phải kết thúc
-for (let r = 0; r < 3; r++) {
-  await page.evaluate(() => { showMenu(); SPEED = 3; const s = [...R].sort(() => Math.random() - .5).slice(0, 6); newBattle(s, enemyTeam(s)); G.auto = true; document.getElementById('menu').style.display = 'none'; });
+// Mỗi sân đấu một trận
+const maps = await page.evaluate(() => MAPS.map(m => m.id));
+for (const id of maps) {
+  await page.evaluate(id => { showMenu(); setMap(MAPS.find(m => m.id === id)); SPEED = 3; const s = [...R].sort(() => Math.random() - .5).slice(0, 6); newBattle(s, enemyTeam(s)); G.auto = true; document.getElementById('menu').style.display = 'none'; }, id);
+  if (process.env.SHOTS) { await page.waitForTimeout(4500); await page.screenshot({ path: `${process.env.SHOTS}/map-${id}.png` }); }
   const end = await page.waitForFunction(() => G.phase === 'end', null, { timeout: 240000, polling: 1000 }).then(() => true).catch(() => false);
-  ok(end, `Trận AI ${r + 1} kết thúc (${await page.evaluate(() => Math.round(G.time))}s)`);
+  const stuck = await page.evaluate(() => G.sides.flatMap(s => s.team).some(f => MAP.rocks.some(r => Math.hypot(f.x - r.x, f.y - r.y) < r.r + 9)));
+  ok(end && !stuck, `Sân ${id}: trận AI kết thúc (${await page.evaluate(() => Math.round(G.time))}s), không Pokémon nào kẹt trong chướng ngại`);
 }
 ok(errs.length === 0, 'Không có lỗi JavaScript' + (errs.length ? ': ' + errs.slice(0, 3).join(' | ') : ''));
 ok(bad.length === 0, 'Không có file bị thiếu' + (bad.length ? ': ' + bad.slice(0, 3).join(' | ') : ''));

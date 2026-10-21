@@ -41,6 +41,19 @@ function enemyTeam(pt) {
   }
   return out;
 }
+// Chọn sân đấu
+let mapPick = 'random';
+const mapsEl = $('maps');
+[{ id: 'random', n: 'NGẪU NHIÊN', desc: 'Mỗi trận một sân ngẫu nhiên.' }, ...MAPS].forEach(m => {
+  const b = document.createElement('button'); b.className = 'tab'; b.dataset.k = m.id; b.textContent = m.n;
+  b.onclick = () => { Snd.init(); Snd.click(); mapPick = m.id; applyMap(); if (m.id !== 'random') { setMap(m); } };
+  mapsEl.appendChild(b);
+});
+function applyMap() {
+  mapsEl.querySelectorAll('.tab').forEach(b => { const on = b.dataset.k === mapPick; b.classList.toggle('on', on); b.style.background = on ? '#ffcf3a' : ''; });
+  const m = MAPS.find(x => x.id === mapPick); $('mapInfo').textContent = m ? m.desc : 'Mỗi trận một sân ngẫu nhiên.';
+}
+applyMap();
 function refresh() {
   grid.querySelectorAll('.card').forEach(el => { const i = picks.indexOf(el.dataset.id); el.classList.toggle('sel', i >= 0); el.querySelector('.num').textContent = i >= 0 ? i + 1 : ''; });
   slots.innerHTML = ''; for (let i = 0; i < 6; i++) { const s = document.createElement('div'); s.className = 'slot' + (picks[i] ? ' on' : ''); if (picks[i]) s.appendChild(sprCanvas(picks[i])); slots.appendChild(s); }
@@ -53,6 +66,7 @@ $('mManual').onclick = () => { Snd.init(); Snd.click(); MODE = 'manual'; $('mMan
 $('mAuto').onclick = () => { Snd.init(); Snd.click(); MODE = 'auto'; $('mAuto').classList.add('on'); $('mManual').classList.remove('on'); };
 $('start').onclick = () => {
   Snd.init(); Snd.click();
+  setMap(mapPick === 'random' ? MAPS[Math.random() * MAPS.length | 0] : MAPS.find(m => m.id === mapPick));
   const pt = picks.map(id => R.find(d => d.id === id));
   newBattle(pt, enemyTeam(pt));
   if (matchMedia('(pointer: coarse)').matches && document.documentElement.requestFullscreen && !document.fullscreenElement)

@@ -11,6 +11,7 @@ function ai(f, o, dt) {
   const sw = f.ranged ? .9 : (d < 70 ? .55 : .25); mx += -uy * f.strafe * sw; my += ux * f.strafe * sw;
   for (const t of G.teles) { if (t.owner === f) continue; if (t.dodge === undefined) t.dodge = Math.random() < .7; if (!t.dodge) continue; const v = threat(t, f); if (v) { const l = Math.hypot(v[0], v[1]) || 1; mx += v[0] / l * 2.4; my += v[1] / l * 2.4; } }
   for (const h of G.hazards) if (h.owner !== f && Math.hypot(f.x - h.x, (f.y - h.y) / .6) < h.r + 20) { mx += (f.x - h.x) / h.r * 1.5; my += (f.y - h.y) / h.r * 1.5; }
+  { const v = [mx, my]; aiTerrain(f, v); mx = v[0]; my = v[1]; }
   if (f.x < AR.x0 + 45) mx += .8; if (f.x > AR.x1 - 45) mx -= .8; if (f.y < AR.y0 + 85) my += .8; if (f.y > AR.y1 - 30) my -= .8;
   const l = Math.hypot(mx, my); if (l > 1) { mx /= l; my /= l; }
   return [mx, my];
