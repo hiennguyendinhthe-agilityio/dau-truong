@@ -57,7 +57,9 @@ applyMap();
 function refresh() {
   grid.querySelectorAll('.card').forEach(el => { const i = picks.indexOf(el.dataset.id); el.classList.toggle('sel', i >= 0); el.querySelector('.num').textContent = i >= 0 ? i + 1 : ''; });
   slots.innerHTML = ''; for (let i = 0; i < 6; i++) { const s = document.createElement('div'); s.className = 'slot' + (picks[i] ? ' on' : ''); if (picks[i]) s.appendChild(sprCanvas(picks[i])); slots.appendChild(s); }
-  const st = $('start'); st.disabled = picks.length !== 6; st.textContent = picks.length === 6 ? 'BẮT ĐẦU' : `CHỌN THÊM ${6 - picks.length}`;
+  const st = $('start'); st.disabled = picks.length !== 6; st.textContent = picks.length === 6 ? 'ĐẤU VỚI AI' : `CHỌN THÊM ${6 - picks.length}`;
+  for (const id of ['findBtn', 'inviteBtn', 'joinBtn']) $(id).disabled = picks.length !== 6;
+  if (NET.pendingCode) $('joinBtn').textContent = 'VÀO PHÒNG ' + NET.pendingCode;
 }
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a; };
 $('rand').onclick = () => { Snd.init(); Snd.pick(); picks = shuffle(tab === 'all' ? R : R.filter(d => d.g === tab)).slice(0, 6).map(d => d.id); refresh(); };
@@ -73,5 +75,5 @@ $('start').onclick = () => {
     document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('portrait').catch(() => { })).catch(() => { });
   $('menu').style.display = 'none'; $('ctrl').style.display = 'block';
 };
-function showMenu() { Snd.stopBgm(); setTimeout(() => { if (!G) Snd.startBgm('menu'); }, 1500); Snd.setAmbient(null); G = null; joy = null; held.atk = false; $('menu').style.display = 'block'; $('ctrl').style.display = 'none'; }
+function showMenu() { if (NET.state !== 'idle') NET.leave(); Snd.stopBgm(); setTimeout(() => { if (!G) Snd.startBgm('menu'); }, 1500); Snd.setAmbient(null); G = null; joy = null; held.atk = false; $('menu').style.display = 'block'; $('ctrl').style.display = 'none'; }
 refresh();

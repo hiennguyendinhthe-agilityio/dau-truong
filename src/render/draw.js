@@ -17,7 +17,7 @@ function drawBall(x, y, r, col, rot, gray) {
   ctx.restore();
 }
 function drawHud(i) {
-  const S = G.sides[i], f = S.shown; if (!f) return; const L = i === 0;
+  const S = G.sides[i], f = S.shown; if (!f) return; const L = i === G.me;
   const px = L ? 6 : W - 42, py = 8;
   rr(px, py, 36, 36, 5); ctx.fillStyle = '#2a2232'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = TYPE_COL[f.types[0]]; ctx.stroke();
   ctx.save(); rr(px + 2, py + 2, 32, 32, 4); ctx.clip(); if ((f.sprite.dir || 1) < 0 ? L : !L) { ctx.translate(px * 2 + 36, 0); ctx.scale(-1, 1); } { const im = f.sprite.img, n = im.width; ctx.drawImage(im, n * .125, 0, n * .75, n * .69, px + 2, py + 3, 32, 30); } ctx.restore();
@@ -222,24 +222,27 @@ function render(now) {
   }
   if (G.phase === 'intro') {
     const p = Math.min(1, G.pt / .4); ctx.fillStyle = 'rgba(10,8,14,.72)'; ctx.fillRect(0, 0, W, H);
-    txt('BẠN', 180 - (1 - p) * 200, 220, 30, '#4aa8ff', 'center', F2);
-    G.sides[0].team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 - (1 - p) * 240 - 105 + k * 35, 240, 32, 32));
+    const me = G.sides[G.me], op = G.sides[1 - G.me];
+    txt(me.name, 180 - (1 - p) * 200, 220, 30, '#4aa8ff', 'center', F2);
+    me.team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 - (1 - p) * 240 - 105 + k * 35, 240, 32, 32));
     txt('VS', 180, 320, 30, '#ffcf3a', 'center');
-    txt('ĐỐI THỦ', 180 + (1 - p) * 200, 370, 30, '#ff5a5a', 'center', F2);
+    txt(op.name, 180 + (1 - p) * 200, 370, 30, '#ff5a5a', 'center', F2);
     txt('SÂN: ' + MAP.n, 180, 470, 24, '#ffcf3a', 'center', F2);
-    G.sides[1].team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 + (1 - p) * 240 - 105 + k * 35, 390, 32, 32));
+    op.team.forEach((m, k) => ctx.drawImage(m.sprite.img, 180 + (1 - p) * 240 - 105 + k * 35, 390, 32, 32));
   }
   if (G.phase === 'end' && G.endT > .9) {
     const a = Math.min(1, (G.endT - .9) * 3); ctx.globalAlpha = a; ctx.fillStyle = 'rgba(10,8,14,.75)'; ctx.fillRect(0, 0, W, H);
-    const win = G.winner === 0;
-    txt(win ? 'CHIẾN THẮNG!' : 'THẤT BẠI', 180, 270, 44, win ? '#ffcf3a' : '#ff5a5a', 'center', F2);
-    const tm2 = Math.floor(G.time), kos = G.sides[1].team.filter(m => m.fainted).length;
+    const win = G.winner === G.me;
+    txt(win ? 'CHIẾN THẮNG!' : G.winner < 0 ? 'TRẬN BỊ HUỶ' : 'THẤT BẠI', 180, 270, 44, win ? '#ffcf3a' : '#ff5a5a', 'center', F2);
+    if (G.endNote) txt(G.endNote, 180, 370, 17, '#ffcf3a', 'center', F2);
+    const tm2 = Math.floor(G.time), kos = G.sides[1 - G.me].team.filter(m => m.fainted).length;
     txt(`Thời gian: ${Math.floor(tm2 / 60)}:${String(tm2 % 60).padStart(2, '0')}   Hạ gục: ${kos}/6`, 180, 320, 20, '#ffffff', 'center', F2);
-    const mvp = G.sides[0].team.slice().sort((x, y) => y.dealt - x.dealt)[0];
+    const mvp = G.sides[G.me].team.slice().sort((x, y) => y.dealt - x.dealt)[0];
     txt(`MVP đội bạn: ${mvp.name} (${mvp.dealt} sát thương)`, 180, 345, 18, '#a99fb4', 'center', F2);
     if (G.endT > 1.5) txt('Chạm màn hình hoặc Enter để chơi lại', 180, 400, 18, '#ffffff', 'center', F2);
     ctx.globalAlpha = 1;
   }
   if (joy && G.phase === 'fight') { ctx.globalAlpha = .4; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(joy.ox, joy.oy, 30, 0, Math.PI * 2); ctx.stroke(); const dx = joy.x - joy.ox, dy = joy.y - joy.oy, l = Math.hypot(dx, dy), k = l > 30 ? 30 / l : 1; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(joy.ox + dx * k, joy.oy + dy * k, 12, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+  if (G.netWait) { ctx.fillStyle = 'rgba(10,8,14,.6)'; ctx.fillRect(0, 280, W, 80); txt('ĐANG CHỜ ĐỐI THỦ KẾT NỐI LẠI', 180, 305, 20, '#ffffff', 'center', F2); txt(String(G.netWait), 180, 335, 22, '#ffcf3a', 'center'); }
   if (G.paused) { ctx.fillStyle = 'rgba(10,8,14,.6)'; ctx.fillRect(0, 0, W, H); txt('TẠM DỪNG', 180, 320, 40, '#ffffff', 'center', F2); }
 }

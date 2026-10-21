@@ -27,7 +27,7 @@ function updF(f, dt) {
     if (f.atkUp > 0 && Math.random() < dt * 8) G.parts.push({ x: f.x + rnd(-14, 14), y: f.y - rnd(10, 40), vx: 0, vy: -50, life: .4, max: .4, col: '#ff7a5a', s: 2, g: 0 });
   }
   const damp = Math.pow(.002, dt); f.kx *= damp; f.ky *= damp;
-  const o = foe(f), ok = alive(o) && fight, manual = f.side === 0 && !G.auto;
+  const o = foe(f), ok = alive(o) && fight, ctl = ctrlOf(f), manual = !!ctl;
   if (ok) f.face = o.x < f.x ? -1 : 1;
   // Lăn né
   if (f.roll) {
@@ -44,7 +44,7 @@ function updF(f, dt) {
   }
   // Độn thổ: di chuyển nhanh dưới đất rồi trồi lên
   if (f.under > 0) {
-    let mx = 0, my = 0; if (manual) [mx, my] = inputVec(); else if (ok) [mx, my] = ai(f, o, dt);
+    let mx = 0, my = 0; if (manual) [mx, my] = ctl.vec(); else if (ok) [mx, my] = ai(f, o, dt);
     const sp = (70 + f.spd * .9) * 1.5, k = Math.min(1, dt * 10);
     f.vx += (mx * sp - f.vx) * k; f.vy += (my * sp - f.vy) * k; f.x += f.vx * dt; f.y += f.vy * dt; clampF(f);
     if (Math.random() < dt * 25) G.parts.push({ x: f.x + rnd(-10, 10), y: f.y - 2, vx: rnd(-40, 40), vy: rnd(-60, -20), life: .4, max: .4, col: Math.random() < .5 ? '#a8693a' : '#7a5a3a', s: 3, g: 200 });
@@ -77,7 +77,7 @@ function updF(f, dt) {
   }
   // Di chuyển
   let mx = 0, my = 0;
-  if (manual && fight) [mx, my] = inputVec(); else if (ok) [mx, my] = ai(f, o, dt);
+  if (manual && fight) [mx, my] = ctl.vec(); else if (ok) [mx, my] = ai(f, o, dt);
   const tm = terrainMove(f), sp = (70 + f.spd * .9) * tm.spd * (para ? .55 : 1) * (f.slowT > 0 ? .55 : 1) * (f.wind ? .25 : 1) * (f.trailT > 0 ? 1.3 : 1) * (f.counterT > 0 ? .15 : 1) * (f.fortT > 0 ? .6 : 1) * (f.swing ? .4 : 1);
   const k = Math.min(1, dt * 10 * tm.grip);
   f.vx += (mx * sp - f.vx) * k; f.vy += (my * sp - f.vy) * k;
@@ -86,15 +86,15 @@ function updF(f, dt) {
   // Hành động
   const free = !f.wind && !f.swing && f.counterT <= 0;
   if (manual) {
-    if (wants('dodge') && f.cdR <= 0 && !f.wind) {
-      inp.dodge = 0; let [rx, ry] = inputVec();
+    if (ctl.wants('dodge') && f.cdR <= 0 && !f.wind) {
+      ctl.take('dodge'); let [rx, ry] = ctl.vec();
       if (!rx && !ry) { if (ok) { rx = f.x - o.x; ry = f.y - o.y; } else rx = -f.face; }
       doRoll(f, rx, ry); return;
     }
     if (!ok || !free) return;
-    if (wants('sk2') && f.cdG <= 0) { inp.sk2 = 0; castSig(f, o); }
-    else if (wants('sk1') && f.cdS <= 0) { inp.sk1 = 0; castSpecial(f, o); }
-    else if ((wants('atk') || heldAtk()) && f.atkCd <= 0) { inp.atk = 0; tryBasic(f, o); }
+    if (ctl.wants('sk2') && f.cdG <= 0) { ctl.take('sk2'); castSig(f, o); }
+    else if (ctl.wants('sk1') && f.cdS <= 0) { ctl.take('sk1'); castSpecial(f, o); }
+    else if ((ctl.wants('atk') || ctl.held()) && f.atkCd <= 0) { ctl.take('atk'); tryBasic(f, o); }
   } else {
     if (!ok) return;
     if (aiDodge(f)) return;
@@ -130,7 +130,7 @@ function updWeather(dt) {
   const w = G.weather;
   if (w) {
     w.t -= dt;
-    if (G.phase === 'fight') {
+    if (G.phase === 'fight' && G.net !== 'guest') {
       w.tick += dt; if (w.tick >= 1) {
         w.tick -= 1; const info = WEATHER[w.type];
         if (info.immune) for (const S of G.sides) { const f = S.active; if (alive(f) && f.under <= 0 && !f.types.some(t => info.immune.includes(t))) { floatT(f.x, f.y - 96, info.n + '!', info.col, 15, .8); damage(f, Math.max(1, Math.round(f.maxHp / 24)), '#ffffff', 15); } }
@@ -180,7 +180,8 @@ function update(dt) {
   if (G.hc.t > 0) { G.hc.t -= dt; if (G.hc.t <= 0) G.hc.n = 0; }
   for (const b of G.bubbles) { b.y -= 14 * dt; b.life -= dt; }
   G.bubbles = G.bubbles.filter(b => b.life > 0);
-  if (G.phase === 'intro') {
+  if (G.net === 'guest') NET.guestStep(dt);
+  else if (G.phase === 'intro') {
     if (G.pt > 1.8) { G.phase = 'fight'; G.fightBanner = 1.35; Snd.fight(); Snd.startBgm(MAP.id); sendOut(0); sendOut(1); startMapWeather(); }
   }
   else {
@@ -206,7 +207,7 @@ function update(dt) {
     G.teles = G.teles.filter(t => !t.done);
     separate();
     // Nhạc gay cấn hơn khi còn 1 quái thú hoặc máu thấp; nhịp tim cảnh báo
-    const pa = G.sides[0].active;
+    const pa = G.sides[G.me].active;
     Snd.music.level = (G.sides.some(S => S.team.filter(m => !m.fainted).length <= 1) || (pa && pa.hp < pa.maxHp * .3)) ? 2 : 1;
     if (G.phase === 'fight' && !G.auto && alive(pa) && pa.hp < pa.maxHp * .25) { G.hbT -= dt; if (G.hbT <= 0) { G.hbT = .9; Snd.heartbeat(); } }
   }

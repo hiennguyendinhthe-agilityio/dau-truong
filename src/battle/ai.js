@@ -53,3 +53,10 @@ function inputVec() {
 }
 const wants = k => inp[k] > 0 && G.clock - inp[k] < .25;
 const heldAtk = () => keys.KeyQ || held.atk;
+// Nguồn điều khiển của một Pokémon: người chơi trên máy này, người chơi ở máy kia (PvP), hoặc null = AI
+const LOCAL_CTL = { vec: () => inputVec(), wants: k => wants(k), take: k => { inp[k] = 0; }, held: () => heldAtk() };
+function ctrlOf(f) {
+  if (!G) return null;
+  if (G.net === 'host' && f.side !== G.me) return NET.remote;
+  return f.side === G.me && !G.auto ? LOCAL_CTL : null;
+}

@@ -41,13 +41,14 @@ const alive = f => f && f.dying < 0 && f.released && f.appear >= 1;
 const foe = f => G.sides[1 - f.side].active;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const rnd = (a, b) => a + Math.random() * (b - a);
-const isAI = f => f.side === 1 || G.auto;
+const isAI = f => !ctrlOf(f);
 
-function newBattle(pt, et) {
+// opts: { me: đội của máy này (0/1), net: 'host' | 'guest' | undefined, names: [tên đội 0, tên đội 1] }
+function newBattle(pt, et, opts = {}) {
   pt.concat(et).forEach(d => ensurePMD(d.dex));
   G = {
     mapMet: [],
-    sides: [{ name: 'BẠN', team: pt.map(d => new Fighter(d, 0)), active: null, shown: null, col: '#4aa8ff' }, { name: 'ĐỐI THỦ', team: et.map(d => new Fighter(d, 1)), active: null, shown: null, col: '#ff5a5a' }],
+    me: opts.me || 0, net: opts.net, sides: [{ name: (opts.names || [])[0] || 'BẠN', team: pt.map(d => new Fighter(d, 0)), active: null, shown: null, col: (opts.me || 0) === 0 ? '#4aa8ff' : '#ff5a5a' }, { name: (opts.names || [])[1] || 'ĐỐI THỦ', team: et.map(d => new Fighter(d, 1)), active: null, shown: null, col: (opts.me || 0) === 1 ? '#4aa8ff' : '#ff5a5a' }],
     weather: null, proj: [], parts: [], floats: [], teles: [], beams: [], rings: [], balls: [], debris: [], wp: [], queue: [], hazards: [], bolts: [],
     bubbles: [], fightBanner: 0, koBanner: null, trainerCheer: 0, hc: { n: 0, t: 0 }, slowmo: 0, clock: 0, hbT: 0,
     hitstop: 0, time: 0, phase: 'intro', pt: 0, shake: 0, auto: MODE === 'auto', paused: false, winner: -1, banner: null, endT: 0, wt: 0

@@ -16,7 +16,7 @@ function ko(f) {
   floatT(f.x, f.y - 96, `${f.name} GỤC NGÃ!`, '#ff6a6a', 16, 1.2);
   G.teles = G.teles.filter(t => t.owner !== f); G.hazards = G.hazards.filter(h => h.owner !== f);
   Snd.faint(f.x);
-  G.koBanner = { s: `${f.name} GỤC NGÃ!`, col: f.side === 0 ? '#ff5a5a' : '#ffe14a', life: 1.6, max: 1.6 };
+  G.koBanner = { s: `${f.name} GỤC NGÃ!`, col: f.side === G.me ? '#ff5a5a' : '#ffe14a', life: 1.6, max: 1.6 };
 }
 function onFaint(f) {
   const S = G.sides[f.side]; S.active = null;
@@ -24,7 +24,7 @@ function onFaint(f) {
     if (G.phase !== 'end') {
       G.phase = 'end'; G.winner = 1 - f.side; G.endT = 0;
       Snd.stopBgm();
-      if (G.winner === 0) Snd.victory(); else Snd.defeat();
+      if (G.winner === G.me) Snd.victory(); else Snd.defeat();
     }
   }
   else G.queue.push({ side: f.side, t: .55 });
@@ -33,8 +33,8 @@ const atkOf = a => a.atk * a.atkMod * (a.status === 'burn' ? .8 : 1) * (a.item =
 // Né đúng khoảnh khắc đòn trúng (đang trong i-frame)
 function perfectDodge(t) {
   if (t.pdCd > 0) return; t.pdCd = .5;
-  if (t.side === 0 && !G.auto) {
-    G.slowmo = .45; t.cdS = Math.max(0, t.cdS - 1); t.cdG = Math.max(0, t.cdG - .5);
+  if (ctrlOf(t)) {
+    if (!G.net) G.slowmo = .45; t.cdS = Math.max(0, t.cdS - 1); t.cdG = Math.max(0, t.cdG - .5);
     floatT(t.x, t.y - 86, 'NÉ HOÀN HẢO!', '#7ff8ff', 17, 1);
     G.rings.push({ x: t.x, y: t.y - 24, r: 6, mr: 46, life: .3, max: .3, col: '#7ff8ff' });
     Snd.perfect();
@@ -71,14 +71,14 @@ function doHit(a, t, mv, mult = 1, o = {}) {
   const big = e > 1 || crit;
   damage(t, dmg, e > 1 ? '#ffe14a' : '#ffffff', o.hazard ? 12 : big ? 19 : 15);
   a.dealt += dmg;
-  if (a.side === 0) { G.hc.n++; G.hc.t = 1.8; }
+  if (a.side === G.me) { G.hc.n++; G.hc.t = 1.8; }
   if (o.hazard) { Snd.tick(t.x); t.sqv -= 2; }
   else {
     if (e > 1) floatT(t.x, t.y - 84, 'HIỆU QUẢ CAO!', '#ffe14a', 15);
     else if (e < 1) floatT(t.x, t.y - 84, 'KHÔNG HIỆU QUẢ LẮM', '#b8b8c8', 13);
     if (crit) floatT(t.x, t.y - 98, 'CHÍ MẠNG!', '#ff8a3a', 15);
     Snd.hit(t.x, e, crit, o.melee); Snd.ty(mv.t, t.x, .45);
-    if (a.side === 0 && big) G.trainerCheer = .55;
+    if (a.side === G.me && big) G.trainerCheer = .55;
     const c = TYPE_COL[mv.t]; burst(t.x, t.y - 26, c, big ? 16 : 10, big ? 170 : 120); t.sqv -= big ? 7 : 5; t.hitRot = (t.x >= a.x ? 1 : -1) * (big ? .38 : .24);
     G.hitstop = Math.max(G.hitstop, big ? .09 : .045); G.rings.push({ x: t.x, y: t.y - 26, r: 4, mr: big ? 36 : 24, life: .22, max: .22, col: '#ffffff', thin: 1 });
     G.shake += big ? 4 : 2;

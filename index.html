@@ -38,7 +38,13 @@
           <button class="btn" id="rand">NGẪU NHIÊN</button>
           <button class="btn" id="clear">XÓA</button>
         </div>
-        <button id="start" disabled>BẮT ĐẦU</button>
+        <div class="row" id="nameRow"><span id="pname"></span><button class="btn mini" id="nameBtn">ĐỔI TÊN</button></div>
+        <button id="start" disabled>ĐẤU VỚI AI</button>
+        <div class="row pvp">
+          <button class="btn" id="findBtn" disabled>TÌM TRẬN</button>
+          <button class="btn" id="inviteBtn" disabled>MỜI BẠN</button>
+          <button class="btn" id="joinBtn" disabled>NHẬP MÃ</button>
+        </div>
         <p class="help">Di chuyển: <b>phím mũi tên</b> hoặc kéo trên màn hình.<br>
           <b>Q</b>: Đánh thường (giữ để đánh liên hoàn, đòn thứ 3 mạnh nhất)<br>
           <b>W</b>: Chiêu 1 · <b>E</b>: Chiêu riêng · <b>R</b> hoặc <b>Space</b>: Lăn né<br>
@@ -46,6 +52,7 @@
           P: tạm dừng. Đối thủ được chọn cùng nhóm với từng con của bạn.<br>
           Hình Pokémon: PokeAPI (menu) và PMD SpriteCollab, CC BY-NC 4.0 (trên sân). Chỉ dùng chơi cá nhân.</p>
       </div>
+      <div id="net"><div id="netBox"></div></div>
       <div id="ctrl">
         <div id="sys"><button class="sm" id="pBtn" title="Tạm dừng (P)">⏸</button><button class="sm" id="sBtn"
             title="Tốc độ">x1</button><button class="sm" id="aBtn" title="AI điều khiển đội bạn">🎮</button><button
@@ -61,6 +68,8 @@
   </div>
   <script src="src/core/config.js"></script>
   <script src="src/core/utils.js"></script>
+  <script src="assets/vendor/supabase-2.118.0.min.js"></script>
+  <script src="assets/vendor/qrcode-generator-1.4.4.js"></script>
   <script src="src/data/types.js"></script>
   <script src="src/data/maps.js"></script>
   <script src="src/data/pokemon.js"></script>
@@ -78,7 +87,9 @@
   <script src="src/battle/update.js"></script>
   <script src="src/render/draw.js"></script>
   <script src="src/ui/controls.js"></script>
+  <script src="src/net/net.js"></script>
   <script src="src/ui/menu.js"></script>
+  <script src="src/ui/netui.js"></script>
   <script src="src/main.js"></script>
 </body>
 

@@ -459,3 +459,22 @@ button {
     display: none
   }
 }
+
+/* ---------- PvP ---------- */
+#nameRow { align-items: center; color: var(--muted); font-size: 19px }
+#nameRow b { color: var(--accent); font-weight: normal }
+.btn.mini { font-size: 16px; padding: 2px 8px }
+.row.pvp .btn { flex: 1; font-size: 19px; padding: 7px 4px; border-color: #4aa8ff; color: #bfe0ff }
+.row.pvp .btn:disabled { opacity: .45 }
+#net { position: absolute; inset: 0; z-index: 5; display: none; align-items: center; justify-content: center; background: rgba(10, 8, 14, .86); font-family: 'VT323', monospace; touch-action: pan-y }
+#netBox { width: 88%; max-height: 92%; overflow-y: auto; background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 14px 12px; text-align: center; color: var(--text) }
+#netBox h2 { font-size: 30px; color: var(--accent); font-weight: normal; margin-bottom: 6px }
+#netBox p { font-size: 19px; line-height: 1.15; color: var(--muted); margin: 6px 0 }
+#netBox .code { font-family: 'Press Start 2P', monospace; font-size: 30px; color: #fff; letter-spacing: 6px; margin: 8px 0 }
+#netBox .qr { background: #fff; display: inline-block; padding: 6px; border-radius: 6px; line-height: 0 }
+#netBox .qr svg { width: 170px; height: 170px }
+#netBox input { font: 26px 'VT323', monospace; width: 80%; padding: 6px; text-align: center; background: #1b1622; color: #fff; border: 2px solid var(--line); border-radius: 6px }
+#netBox .col { display: flex; flex-direction: column; gap: 6px; margin-top: 10px }
+#netBox .err { color: #ff8a8a }
+#netBox .dots::after { content: ''; animation: dots 1.2s steps(4) infinite }
+@keyframes dots { 0% { content: '' } 25% { content: '.' } 50% { content: '..' } 75% { content: '...' } }
