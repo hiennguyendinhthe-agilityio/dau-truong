@@ -20,7 +20,7 @@ const Snd = {
       const nl = c.sampleRate * 2 | 0; this.nb = c.createBuffer(1, nl, c.sampleRate); const nd = this.nb.getChannelData(0); for (let i = 0; i < nl; i++) nd[i] = Math.random() * 2 - 1;
     }
     if (this.ctx.state === 'suspended') this.ctx.resume();
-    if (!G && !this.music.on && document.getElementById('menu').style.display !== 'none') this.startBgm('menu');
+    if (!G && !this.music.on && document.getElementById('menu').style.display !== 'none' && (typeof splash === 'undefined' || splash.done)) this.startBgm('menu');
   },
   toggle() { this.muted = !this.muted; if (this.muted) this.setAmbient(null); return !this.muted; },
   // Đầu ra: panning theo vị trí x trên sân + gửi reverb/delay

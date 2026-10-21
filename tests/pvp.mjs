@@ -20,7 +20,7 @@ async function player(name, team, opts = {}) {
   const ctx = await browser.newContext({ ...(opts.mobile ? devices['iPhone 13'] : { viewport: { width: 414, height: 736 } }), ignoreHTTPSErrors: true });
   await ctx.addInitScript(n => { try { localStorage.setItem('dt-name', n); } catch (e) { } }, name);
   const p = await ctx.newPage(); p.on('pageerror', e => errs.push(name + ': ' + e.message));
-  await p.goto(url + (opts.query || '')); await p.waitForFunction(() => typeof NET !== 'undefined');
+  await p.goto(url + (opts.query || '')); await p.waitForFunction(() => typeof NET !== 'undefined' && typeof splash !== 'undefined'); await p.evaluate(() => splash.close());
   await p.evaluate(t => { picks = t.slice(); refresh(); NET.waitAsk = 6; }, team);
   return p;
 }

@@ -16,6 +16,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH 
 const ctx = await browser.newContext({ viewport: { width: 414, height: 736 } });
 const page = await ctx.newPage(); const errs = []; page.on('pageerror', e => errs.push(e.message));
 await page.goto(url); await page.waitForFunction(() => R.every(d => SPR[d.id].real), null, { timeout: 15000 });
+
 const E = (fn, arg) => page.evaluate(fn, arg);
 // Công cụ trong trang: dựng trận thử, chạy giả lập theo bước 1/60 giây
 await E(() => {
@@ -35,6 +36,23 @@ await E(() => {
     }
   };
 });
+
+// ---------- 0. Màn hình mở đầu ----------
+group = 'Màn hình mở đầu';
+ok(await page.$eval('#splash', e => getComputedStyle(e).display !== 'none'), 'Mở game: hiện màn hình mở đầu, che menu');
+ok(await E(() => !Snd.music.on), 'Chưa chạm thì chưa phát nhạc menu');
+await page.waitForTimeout(1200);
+const shot = () => page.$eval('#splashC', c => c.toDataURL().length);
+const s1 = await shot(); await page.waitForTimeout(400); const s2 = await shot();
+ok(s1 !== s2, 'Màn hình mở đầu đang chạy hoạt ảnh (hình thay đổi theo thời gian)');
+await page.mouse.click(200, 300); await page.waitForTimeout(100);
+ok(await E(() => splash.t >= 2.9 && !splash.done), 'Chạm sớm: bỏ qua phần mở đầu, nhảy tới cảnh CHẠM ĐỂ BẮT ĐẦU');
+await page.waitForTimeout(200);
+ok(await page.$eval('#splashC', c => { const x = c.getContext('2d'), d = x.getImageData(c.width * .25, c.height * .61, c.width * .5, c.height * .05).data; let w = 0; for (let i = 0; i < d.length; i += 4) if (d[i] > 200 && d[i + 1] > 200 && d[i + 2] > 200) w++; return w > 200; }), 'Chữ CHẠM ĐỂ BẮT ĐẦU hiện trên màn hình mở đầu');
+await page.waitForTimeout(300); await page.mouse.click(200, 300); await page.waitForTimeout(800);
+ok(await page.$eval('#splash', e => e.style.display === 'none') && await E(() => splash.done && document.getElementById('menu').style.display !== 'none'), 'Chạm lần nữa: vào màn chọn đội');
+ok(await E(() => Snd.ctx && Snd.music.on && Snd.music.id === 'menu'), 'Vào menu thì bật nhạc menu');
+ok(await E(() => { showMenu(); return document.getElementById('splash').style.display === 'none'; }), 'Về menu từ trận đấu không hiện lại màn hình mở đầu');
 
 // ---------- 1. Dữ liệu ----------
 group = 'Dữ liệu';
@@ -62,7 +80,7 @@ ok(await E(() => { const e = enemyTeam(R.filter(d => d.g === 'legend').slice(0, 
 // ---------- 2a. Bố cục điện thoại ----------
 group = 'Bố cục màn chọn đội';
 {
-  const ph = await browser.newContext({ ...devices['iPhone 13'] }), pp = await ph.newPage(); await pp.goto(url); await pp.waitForTimeout(1500);
+  const ph = await browser.newContext({ ...devices['iPhone 13'] }), pp = await ph.newPage(); await pp.goto(url); await pp.waitForTimeout(1500); await pp.evaluate(() => splash.close());
   const vis = id => pp.$eval(id, e => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && r.height > 0; });
   ok(await vis('#start') && await vis('#findBtn') && await vis('#inviteBtn') && await vis('#joinBtn'), 'Mở game trên iPhone: thấy ngay các nút vào trận, không cần cuộn');
   await pp.evaluate(() => { document.getElementById('menu').scrollTop = 900; }); await pp.waitForTimeout(200);
@@ -192,11 +210,11 @@ ok(errs.length === 0, 'Không có lỗi JavaScript trong toàn bộ bài test' +
 // ---------- 8. Điện thoại & không có mạng ----------
 group = 'Điện thoại & offline';
 const m = await browser.newContext({ ...devices['iPhone 13'] }); const mp = await m.newPage(); const merr = []; mp.on('pageerror', e => merr.push(e.message));
-await mp.goto(url); await mp.evaluate(() => navigator.serviceWorker.ready); await mp.waitForTimeout(3000);
+await mp.goto(url); await mp.evaluate(() => navigator.serviceWorker.ready); await mp.waitForTimeout(3000); await mp.evaluate(() => splash.close());
 await mp.setViewportSize({ width: 844, height: 390 }); ok(await mp.$eval('#rot', e => getComputedStyle(e).display === 'flex'), 'Xoay ngang hiện nhắc xoay dọc');
 await mp.setViewportSize({ width: 390, height: 664 }); ok(await mp.$eval('#rot', e => getComputedStyle(e).display === 'none'), 'Xoay dọc chơi bình thường');
 ok(await mp.$eval('#pad', e => { const r = e.getBoundingClientRect(); return r.bottom <= innerHeight; }), 'Nút bấm nằm trong màn hình');
-await m.setOffline(true); server.close(); await mp.reload(); await mp.waitForTimeout(2500);
+await m.setOffline(true); server.close(); await mp.reload(); await mp.waitForTimeout(2500); await mp.evaluate(() => splash.close());
 ok(await mp.evaluate(() => typeof R !== 'undefined' && R.every(d => SPR[d.id].real)), 'Tắt mạng, tải lại trang: game vẫn mở, đủ hình');
 const cards = await mp.$$('.card'); for (let i = 0; i < 6; i++) await cards[i].tap(); await mp.tap('#start');
 await mp.waitForFunction(() => G && G.sides.every(s => s.team.every(f => pmdOf(f))), null, { timeout: 15000 }).then(() => ok(true, 'Tắt mạng vẫn vào trận, hoạt ảnh đầy đủ')).catch(() => ok(false, 'Tắt mạng vẫn vào trận, hoạt ảnh đầy đủ'));

@@ -28,6 +28,7 @@ const ctx = await browser.newContext({ ...devices['iPhone 13'] });
 const page = await ctx.newPage(); const errs = []; page.on('pageerror', e => errs.push(e.message)); const bad = [];
 page.on('response', r => { if (r.status() >= 400) bad.push(r.url()); });
 await page.goto(url); await page.waitForFunction(() => R.every(d => SPR[d.id].real), null, { timeout: 15000 });
+await page.evaluate(() => splash.close());  // bỏ qua màn hình mở đầu (được kiểm riêng trong features.mjs)
 ok(true, 'Ảnh chân dung tải đủ');
 const cards = await page.$$('.card'); for (let i = 0; i < 6; i++) await cards[i].tap();
 await page.tap('#start'); await page.waitForFunction(() => G && G.sides.every(s => s.team.every(f => pmdOf(f))), null, { timeout: 15000 });

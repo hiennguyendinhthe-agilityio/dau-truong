@@ -25,7 +25,7 @@ src/
              arena.js (nền sân), draw.js (vẽ mọi thứ trên màn hình)
   battle/    state.js (trận đấu, Fighter), terrain.js (địa hình sân), effects.js, combat.js (sát thương, chiêu),
              ai.js (AI + phím), update.js (cập nhật mỗi khung hình)
-  ui/        controls.js (nút, cảm ứng, bàn phím), menu.js (màn chọn đội), netui.js (giao diện PvP), pokedex.js (màn hình Pokédex)
+  ui/        splash.js (màn hình mở đầu), controls.js (nút, cảm ứng, bàn phím), menu.js (màn chọn đội), netui.js (giao diện PvP), pokedex.js (màn hình Pokédex)
   net/       net.js (PvP online: ghép trận, phòng mã/QR, đồng bộ trận qua Supabase Realtime)
   styles/    main.css, fonts.css
   main.js    Vòng lặp game (nạp cuối cùng)

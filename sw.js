@@ -1,6 +1,6 @@
 // FILE TỰ SINH bởi tools/gen-sw.mjs — không sửa tay.
 // Lưu toàn bộ game vào máy ở lần mở đầu tiên để lần sau chơi được cả khi không có mạng.
-const CACHE = 'dau-truong-05d96f86ed';
+const CACHE = 'dau-truong-b8768f60ad';
 const FILES = [
  "apple-touch-icon.png",
  "assets/fonts/press-start-2p-1.woff2",
@@ -281,7 +281,8 @@ const FILES = [
  "src/ui/controls.js",
  "src/ui/menu.js",
  "src/ui/netui.js",
- "src/ui/pokedex.js"
+ "src/ui/pokedex.js",
+ "src/ui/splash.js"
 ];
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
