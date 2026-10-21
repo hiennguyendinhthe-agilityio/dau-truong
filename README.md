@@ -74,3 +74,25 @@ Chạy `npm test`: kiểm thử tự cho AI đánh một trận trên mỗi sân
   điều khiển đội phía trên sân.
 - Giới hạn gói miễn phí: khoảng 100 tin nhắn/giây cho cả dự án, mỗi trận dùng khoảng 30 tin/giây
   → khoảng 3 trận cùng lúc. Bước 2 (nối thẳng 2 máy) sẽ bỏ giới hạn này.
+
+## Trạng thái và việc tiếp theo (cập nhật 21/10)
+
+| Hạng mục | Trạng thái |
+|---|---|
+| Lối chơi | 41 Pokémon thật, 5 nhóm, 18 hệ; Q/W/E/R + phím mũi tên; cảm ứng trên điện thoại |
+| Hình ảnh | Ảnh chân dung PokeAPI (menu), hoạt ảnh PMD 8 hướng (trên sân) |
+| Sân đấu / nhạc | 6 sân có địa hình riêng; 7 bài nhạc Web Audio |
+| Pokédex | Thông tin, lịch sử qua các bản game (tiếng Việt), tương khắc |
+| PvP | Bước 1 xong: tìm trận, mời bạn bằng QR/mã 4 số, đồng bộ qua Supabase Realtime |
+| Điện thoại | Thanh nút dính đáy, chơi không cần mạng, tự cập nhật khi mở lại app, splash screen |
+
+Việc có thể làm tiếp:
+- PvP bước 2: nối thẳng 2 máy (WebRTC) để giảm độ trễ và bỏ giới hạn ~3 trận cùng lúc của gói miễn phí Supabase.
+- Chỉnh cân bằng Pokémon sau khi người chơi thử thật.
+- Lật ngược sân cho người vào phòng PvP (hiện người vào phòng đứng nửa trên sân).
+- Thu gọn thanh nút ở đáy menu (gộp TÌM TRẬN / MỜI BẠN / NHẬP MÃ thành nút ONLINE) nếu thấy chật.
+
+Lưu ý vận hành:
+- Test PvP cần mạng tới `*.supabase.co` (đã cho phép trong môi trường Claude Code "Default").
+- Hình và tên Pokémon thuộc Nintendo / Game Freak: chỉ chơi trong nhóm bạn bè, không quảng bá link công khai.
+- Người chơi kiểm tra bản đang chạy bằng dòng "Phiên bản …" ở cuối menu và cuối màn hình splash.
