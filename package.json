@@ -5,6 +5,7 @@
   "scripts": {
     "sw": "node tools/gen-sw.mjs",
     "test": "node tools/gen-sw.mjs && node tests/smoke.mjs",
+    "test:all": "node tools/gen-sw.mjs && node tests/features.mjs && node tests/smoke.mjs",
     "start": "npx --yes serve -l 5173 ."
   },
   "devDependencies": {

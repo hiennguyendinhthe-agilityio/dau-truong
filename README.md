@@ -49,7 +49,8 @@ Thêm file mới thì phải thêm thẻ `<script>` đúng chỗ: file dùng bi�
 ```
 npm install          # lần đầu
 npm start            # mở http://localhost:5173
-npm test             # tạo lại sw.js + chạy kiểm thử (chọn đội, cảm ứng, 3 trận AI, lỗi, file thiếu)
+npm test             # kiểm thử nhanh: chọn đội, cảm ứng, nhạc, 1 trận AI mỗi sân
+npm run test:all     # kiểm thử đầy đủ 75 chức năng (tests/features.mjs) + kiểm thử nhanh
 ```
 
 Chỉ đẩy lên GitHub khi `npm test` báo "Tất cả đều ĐẠT". GitHub Pages tự cập nhật link sau 1–2 phút.
