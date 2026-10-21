@@ -181,7 +181,7 @@ function update(dt) {
   for (const b of G.bubbles) { b.y -= 14 * dt; b.life -= dt; }
   G.bubbles = G.bubbles.filter(b => b.life > 0);
   if (G.phase === 'intro') {
-    if (G.pt > 1.8) { G.phase = 'fight'; G.fightBanner = 1.35; Snd.fight(); Snd.startBgm(); sendOut(0); sendOut(1); startMapWeather(); }
+    if (G.pt > 1.8) { G.phase = 'fight'; G.fightBanner = 1.35; Snd.fight(); Snd.startBgm(MAP.id); sendOut(0); sendOut(1); startMapWeather(); }
   }
   else {
     if (G.phase === 'fight') G.time += dt; else G.endT += dt;

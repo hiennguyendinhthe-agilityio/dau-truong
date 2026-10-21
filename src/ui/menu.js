@@ -65,7 +65,7 @@ $('clear').onclick = () => { Snd.init(); Snd.unpick(); picks = []; refresh(); };
 $('mManual').onclick = () => { Snd.init(); Snd.click(); MODE = 'manual'; $('mManual').classList.add('on'); $('mAuto').classList.remove('on'); };
 $('mAuto').onclick = () => { Snd.init(); Snd.click(); MODE = 'auto'; $('mAuto').classList.add('on'); $('mManual').classList.remove('on'); };
 $('start').onclick = () => {
-  Snd.init(); Snd.click();
+  Snd.init(); Snd.click(); Snd.stopBgm();
   setMap(mapPick === 'random' ? MAPS[Math.random() * MAPS.length | 0] : MAPS.find(m => m.id === mapPick));
   const pt = picks.map(id => R.find(d => d.id === id));
   newBattle(pt, enemyTeam(pt));
@@ -73,5 +73,5 @@ $('start').onclick = () => {
     document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('portrait').catch(() => { })).catch(() => { });
   $('menu').style.display = 'none'; $('ctrl').style.display = 'block';
 };
-function showMenu() { Snd.stopBgm(); Snd.setAmbient(null); G = null; joy = null; held.atk = false; $('menu').style.display = 'block'; $('ctrl').style.display = 'none'; }
+function showMenu() { Snd.stopBgm(); setTimeout(() => { if (!G) Snd.startBgm('menu'); }, 1500); Snd.setAmbient(null); G = null; joy = null; held.atk = false; $('menu').style.display = 'block'; $('ctrl').style.display = 'none'; }
 refresh();

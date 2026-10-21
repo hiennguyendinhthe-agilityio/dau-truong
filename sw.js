@@ -1,6 +1,6 @@
 // FILE TỰ SINH bởi tools/gen-sw.mjs — không sửa tay.
 // Lưu toàn bộ game vào máy ở lần mở đầu tiên để lần sau chơi được cả khi không có mạng.
-const CACHE = 'dau-truong-8d5acfb7f4';
+const CACHE = 'dau-truong-8cdc691ab3';
 const FILES = [
  "apple-touch-icon.png",
  "assets/fonts/press-start-2p-1.woff2",

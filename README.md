@@ -15,9 +15,10 @@ sw.js                   Lưu game vào máy để chơi không cần mạng (FIL
 apple-touch-icon.png    Biểu tượng khi "Thêm vào MH chính" trên iPhone
 src/
   core/      config.js (kích thước, canvas, font), utils.js (hàm màu)
-  data/      types.js (18 hệ, tương khắc, vật phẩm, thời tiết), maps.js (6 sân đấu)
+  data/      types.js (18 hệ, tương khắc, vật phẩm, thời tiết), maps.js (6 sân đấu),
+             music.js (7 bản nhạc: menu + mỗi sân một bài, id bài = id sân)
              pokemon.js (danh sách Pokémon, chỉ số, chiêu)
-             pmd-anim.js (thông số hoạt ảnh), music.js (bản nhạc)
+             pmd-anim.js (thông số hoạt ảnh)
   audio/     sound.js (hiệu ứng âm thanh, nhạc nền)
   render/    sprites.js (hình tạm), sprite-loader.js (tải hình thật),
              arena.js (nền sân), draw.js (vẽ mọi thứ trên màn hình)

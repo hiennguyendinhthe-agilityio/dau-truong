@@ -42,6 +42,9 @@ await page.waitForFunction(() => G.sides[0].active && G.sides[0].active.cdS <= 0
 const b = await page.$eval('#bSk1', e => { const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
 await touch('touchStart', b[0], b[1]); await page.waitForTimeout(80); await touch('touchEnd'); await page.waitForTimeout(150);
 ok(await page.evaluate(() => G.sides[0].active.cdS > 1), 'Nút CHIÊU ra chiêu');
+ok(await page.evaluate(() => Snd.music.on && Snd.music.id === MAP.id), 'Nhạc nền đúng bài của sân đấu');
+await page.evaluate(() => showMenu()); await page.waitForTimeout(1800); await page.tap('#rand');
+ok(await page.evaluate(() => Snd.music.on && Snd.music.id === 'menu'), 'Về màn chọn đội thì chuyển sang nhạc menu');
 
 // 3. AI tự đánh nhiều trận, trận nào cũng phải kết thúc
 // Mỗi sân đấu một trận

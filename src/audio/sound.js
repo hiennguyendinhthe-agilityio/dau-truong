@@ -20,6 +20,7 @@ const Snd = {
       const nl = c.sampleRate * 2 | 0; this.nb = c.createBuffer(1, nl, c.sampleRate); const nd = this.nb.getChannelData(0); for (let i = 0; i < nl; i++) nd[i] = Math.random() * 2 - 1;
     }
     if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (!G && !this.music.on && document.getElementById('menu').style.display !== 'none') this.startBgm('menu');
   },
   toggle() { this.muted = !this.muted; if (this.muted) this.setAmbient(null); return !this.muted; },
   // Đầu ra: panning theo vị trí x trên sân + gửi reverb/delay
@@ -136,34 +137,78 @@ const Snd = {
   defeat() { [[69, 0], [68, .25], [67, .5], [66, .75]].forEach(([m, d]) => this.T({ f: mtof(m), dur: .3, v: .07, d, fl: ['lowpass', 1500] })); this.T({ f: mtof(57), w: 'triangle', dur: 1.5, v: .12, d: 1, vib: [5, 6], rv: .5 }); },
   heartbeat() { this.T({ f: 65, f2: 45, w: 'sine', dur: .15, v: .35 }); this.T({ f: 60, f2: 40, w: 'sine', dur: .18, v: .28, d: .2 }); },
   // --- Nhạc nền: bộ lập lịch nhìn trước (lookahead) theo đồng hồ AudioContext ---
-  spb() { return 60 / (this.music.level > 1 ? 166 : 150) / 4; },
-  startBgm() {
-    if (!this.ctx || this.music.on) return; const m = this.music;
-    m.on = true; m.step = 0; m.next = this.ctx.currentTime + .1;
+  spb() { const so = this.music.song || SONGS.cave; return 60 / (this.music.level > 1 ? so.bpmHi : so.bpm) / 4; },
+  // Phát bài nhạc theo tên (menu, cave, meadow...). Gọi lại với bài khác sẽ chuyển bài.
+  startBgm(id = 'cave') {
+    if (!this.ctx) return; const m = this.music;
+    if (m.on && m.id === id) return; this.stopBgm();
+    m.on = true; m.id = id; m.song = SONGS[id] || SONGS.cave; m.step = 0; m.next = this.ctx.currentTime + .1;
     m.timer = setInterval(() => {
       const now = this.ctx.currentTime;
-      if (!G || G.phase !== 'fight' || G.paused || this.muted || document.hidden) { m.next = now + .05; return; }
+      const play = G ? G.phase === 'fight' && !G.paused : id === 'menu';
+      if (!play || this.muted || document.hidden) { m.next = now + .05; return; }
       while (m.next < now + .14) { this.playStep(m.step, m.next); m.next += this.spb(); m.step = (m.step + 1) & 127; }
     }, 30);
   },
-  stopBgm() { clearInterval(this.music.timer); this.music.on = false; this.music.timer = null; },
-  playStep(s, t) {
-    const bar = (s >> 4) & 7, st = s & 15, lv = this.music.level, spb = this.spb();
-    const T = o => this.T(Object.assign({ bus: this.mus, t0: t }, o)), N = o => this.N(Object.assign({ bus: this.mus, t0: t }, o));
-    // Trống: kick, snare, hi-hat, crash; nhịp dồn dập hơn khi gay cấn
-    if (st % 4 === 0 || (lv > 1 && st === 14) || (st === 10 && bar % 2)) T({ f: 150, f2: 42, w: 'sine', dur: .2, v: .55, sl: .12 });
-    if (st === 4 || st === 12) { N({ dur: .14, v: .28, fl: ['bandpass', 1900, 900, .8], rv: .25 }); T({ f: 200, f2: 140, w: 'triangle', dur: .08, v: .15 }); }
-    if (lv > 1 && st === 15 && bar % 2) N({ dur: .08, v: .16, fl: ['bandpass', 2200, 900] });
-    if (st % 2 === 0) N({ dur: .035, v: .07, fl: ['highpass', 7500] }); else if (lv > 1) N({ dur: .025, v: .04, fl: ['highpass', 8500] });
-    if (st === 0 && bar % 4 === 0) N({ dur: .8, v: .07, fl: ['highpass', 5000], rv: .3 });
+  stopBgm() { clearInterval(this.music.timer); this.music.on = false; this.music.timer = null; this.music.id = null; },
+  playStep(s, t, so = this.music.song || SONGS.cave) {
+    const bar = (s >> 4) & 7, st = s & 15, lv = this.music.level, spb = this.spb(), V = so.vol;
+    const T = o => this.T(Object.assign({ bus: this.mus, t0: t }, o, { v: o.v * V })), N = o => this.N(Object.assign({ bus: this.mus, t0: t }, o, { v: o.v * V }));
+    const kick = (v = .55) => T({ f: 150, f2: 42, w: 'sine', dur: .2, v, sl: .12 });
+    const snare = (v = .28, rv = .25) => { N({ dur: .14, v, fl: ['bandpass', 1900, 900, .8], rv }); T({ f: 200, f2: 140, w: 'triangle', dur: .08, v: v * .55 }); };
+    const hat = (v = .07) => N({ dur: .035, v, fl: ['highpass', 7500] });
+    const crash = () => N({ dur: .8, v: .07, fl: ['highpass', 5000], rv: .3 });
+    // Trống theo phong cách bài
+    switch (so.drums) {
+      case 'battle':
+        if (st % 4 === 0 || (lv > 1 && st === 14) || (st === 10 && bar % 2)) kick();
+        if (st === 4 || st === 12) snare();
+        if (lv > 1 && st === 15 && bar % 2) N({ dur: .08, v: .16, fl: ['bandpass', 2200, 900] });
+        if (st % 2 === 0) hat(); else if (lv > 1) hat(.04);
+        if (st === 0 && bar % 4 === 0) crash(); break;
+      case 'pop':
+        if (st === 0 || st === 8 || (st === 6 && bar % 2) || (lv > 1 && st === 14)) kick(.5);
+        if (st === 4 || st === 12) snare(.24);
+        if (st % 2 === 0) hat(.05); if (st % 4 === 2) N({ dur: .06, v: .04, fl: ['bandpass', 5000, 3000, 2] });
+        if (st === 0 && bar % 4 === 0) crash(); break;
+      case 'reggae':
+        if (st === 8 || (lv > 1 && st === 0)) { kick(.5); N({ dur: .05, v: .12, fl: ['bandpass', 3000, 2500, 4] }); }
+        if (st % 4 === 2) hat(.05); if (st === 14 && bar % 2) N({ dur: .1, v: .08, fl: ['bandpass', 800, 400, 3] });
+        break;
+      case 'metal':
+        if (st % 2 === 0 || (lv > 1)) kick(lv > 1 ? .4 : .5);
+        if (st === 4 || st === 12) snare(.3, .15);
+        hat(.045); if (st === 0 && bar % 2 === 0) crash(); break;
+      case 'calm':
+        if (st === 0 || st === 10) kick(.4);
+        if (st === 8) snare(.14, .6);
+        if (st % 4 === 0) T({ f: 4200, w: 'triangle', dur: .05, v: .025 });
+        if (lv > 1 && st % 2 === 0) hat(.035); break;
+      case 'space':
+        if (st === 0 || st === 8 || (lv > 1 && st === 10)) kick(.5);
+        if (st === 12) snare(.22, .8);
+        if (st % 4 === 2) hat(.04); if (st === 0 && bar % 4 === 0) N({ dur: 1.4, v: .05, fl: ['highpass', 3000, 8000], rv: .8 });
+        break;
+      case 'soft':
+        if (st === 0 || st === 8) kick(.3); if (st === 12) snare(.1, .5); if (st % 4 === 2) hat(.03); break;
+    }
     // Bass
-    if ([0, 2, 3, 6, 8, 10, 11, 14].includes(st)) { const m = SONG.bass[bar] + (st === 3 || st === 11 ? 12 : 0); T({ f: mtof(m), w: 'sawtooth', dur: spb * 1.7, v: .14, fl: ['lowpass', lv > 1 ? 1100 : 750, 200, 2] }); T({ f: mtof(m - 12), dur: spb * 1.5, v: .06, fl: ['lowpass', 300] }); }
-    // Arpeggio + pad hợp âm
-    const ch = SONG.chords[bar]; T({ f: mtof(ch[[0, 1, 2, 1][st % 4]] + 12 + (st >= 8 && lv > 1 ? 12 : 0)), w: lv > 1 ? 'square' : 'triangle', dur: spb * .9, v: lv > 1 ? .03 : .04, fl: ['lowpass', 2500] });
-    if (st === 0) ch.forEach(m => T({ f: mtof(m), w: 'sawtooth', dur: spb * 15, v: .022, at: spb * 3, fl: ['lowpass', 900], rv: .3 }));
-    // Giai điệu chính (2 oscillator lệch nhẹ + vibrato + delay)
-    const L = SONG.lead.get(s & 127);
-    if (L) { const f = mtof(L[0]), du = L[1] * spb * .95; T({ f, dur: du, v: .06, vib: [5.5, f * .012], fl: ['lowpass', 3200], dl: .5, at: .01 }); T({ f, det: 12, dur: du, v: .035, fl: ['lowpass', 2400] }); }
+    if (so.bassPat.includes(st)) { const m = so.bass[bar] + (so.drums === 'battle' && (st === 3 || st === 11) ? 12 : 0); T({ f: mtof(m), w: so.bassWave, dur: spb * 1.7, v: so.bassWave === 'sawtooth' ? .14 : .2, fl: ['lowpass', lv > 1 ? 1100 : 750, 200, 2] }); T({ f: mtof(m - 12), dur: spb * 1.5, v: .06, fl: ['lowpass', 300] }); }
+    // Rải hợp âm (skank = chỉ đánh nhịp lệch kiểu reggae)
+    const ch = so.chords[bar], A = so.arp;
+    if (A) {
+      if (A.skank) { if (st % 4 === 2) ch.forEach(m => T({ f: mtof(m + A.oct), w: A.wave, dur: spb * .7, v: A.vol, fl: ['lowpass', 2200] })); }
+      else if (st % A.every === 0) { const n = ch[A.pat[(st / A.every) % A.pat.length] % ch.length]; T({ f: mtof(n + A.oct + (st >= 8 && lv > 1 ? 12 : 0)), w: lv > 1 && A.wave === 'triangle' ? 'square' : A.wave, dur: spb * .9, v: A.vol, fl: ['lowpass', 2500], dl: A.delay ? .4 : 0, rv: so.bell ? .4 : 0 }); }
+    }
+    if (st === 0 && so.pad) ch.forEach(m => T({ f: mtof(m), w: so.pad.wave, dur: spb * 15, v: so.pad.vol, at: spb * 3, fl: ['lowpass', 900], rv: .3 }));
+    // Giai điệu chính
+    const L = so.leadMap.get(s & 127);
+    if (L) {
+      const f = mtof(L[0] + so.leadOct), du = so.leadShort ? Math.min(L[1], 2) * spb * .9 : L[1] * spb * .95;
+      T({ f, w: so.leadWave, dur: du, v: so.leadVol, vib: so.leadShort ? undefined : [5.5, f * .012], fl: ['lowpass', 3200], dl: so.leadDelay || .5, at: .01, rv: so.bell ? .5 : 0 });
+      if (so.bell) T({ f: f * 2, w: 'sine', dur: du * .6, v: so.leadVol * .35, rv: .6 });
+      else if (so.leadWave !== 'sine') T({ f, det: 12, w: so.leadWave === 'square' ? 'square' : 'sawtooth', dur: du, v: .035, fl: ['lowpass', 2400] });
+    }
   },
   // --- Âm thanh môi trường theo thời tiết (vòng lặp nhiễu có lọc) ---
   setAmbient(type) {
