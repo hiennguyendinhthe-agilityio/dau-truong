@@ -478,3 +478,31 @@ button {
 #netBox .err { color: #ff8a8a }
 #netBox .dots::after { content: ''; animation: dots 1.2s steps(4) infinite }
 @keyframes dots { 0% { content: '' } 25% { content: '.' } 50% { content: '..' } 75% { content: '...' } }
+
+/* ---------- Pokédex ---------- */
+#info a { color: #8fd0ff }
+.dx-i { position: absolute; top: 3px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #6a5a80; background: #1b1622; color: #bfe0ff; font: 15px 'VT323', monospace; line-height: 16px; padding: 0 }
+#dex { position: absolute; inset: 0; z-index: 6; display: none; align-items: center; justify-content: center; background: rgba(10, 8, 14, .88); font-family: 'VT323', monospace; touch-action: pan-y }
+#dexBox { width: 92%; max-height: 94%; overflow-y: auto; background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 12px; color: var(--text) }
+#dexBox h3 { font-weight: normal; font-size: 20px; color: var(--accent); margin: 12px 0 4px; border-bottom: 1px solid var(--line) }
+.dx-head { display: flex; gap: 10px; align-items: center }
+.dx-head canvas { width: 96px; height: 96px; image-rendering: pixelated; background: #1b1622; border-radius: 8px; flex: none }
+.dx-no { color: var(--muted); font-size: 17px }
+.dx-nm { font-family: 'Press Start 2P', monospace; font-size: 13px; margin: 2px 0 }
+.dx-gn { color: #c8c0d8; font-size: 18px }
+.dx-t { width: 100%; font-size: 17px; border-collapse: collapse }
+.dx-t td { padding: 2px 4px; vertical-align: top; border-bottom: 1px solid #2e2638 }
+.dx-t td:first-child { color: var(--muted); width: 36% }
+.dx-e { font-size: 18px; line-height: 1.15; margin: 6px 0 }
+.dx-e span { display: block; color: #8fd0ff; font-size: 15px }
+.st { display: flex; align-items: center; gap: 6px; font-size: 16px; margin: 3px 0 }
+.st span { width: 42px; color: var(--muted) }
+.st i { flex: 1; height: 8px; background: #1b1622; border-radius: 4px; overflow: hidden }
+.st em { display: block; height: 100%; background: linear-gradient(90deg, #4cd060, #ffcf3a) }
+.st b { width: 38px; text-align: right; font-weight: normal }
+.mv { font-size: 17px; line-height: 1.15; margin: 6px 0; color: #d8d0e0 }
+.mv .s1 { color: #8fd0ff } .mv .s2 { color: #ff9ad0 }
+.dx-src { font-size: 14px; color: var(--muted); margin-top: 10px }
+.dx-nav { display: flex; gap: 6px; margin-top: 10px }
+.dx-nav .btn { flex: 1 } .dx-nav .btn:first-child, .dx-nav .btn:last-child { flex: none; width: 52px }
+.dx-close { width: 100%; margin-top: 6px }

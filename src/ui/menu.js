@@ -9,7 +9,9 @@ function showInfo(d) {
   $('info').innerHTML = `<b>${d.name}</b> · <span style="color:${GROUPS[d.g].col}">${GROUPS[d.g].n}</span> · ${d.types.map(t => TYPE_VI[t]).join('/')} · ${ITEMS[d.item]}<br>`
     + `Đánh thường: <b>${d.basic.n}</b> (${d.basic.k === 'melee' ? 'cận chiến' : 'tầm xa'}, chuỗi 3 đòn)<br>`
     + `<span class="s1">Chiêu 1: ${d.sp.n}</span> (${d.sp.cd}s): ${SP_DESC[d.sp.k]}<br>`
-    + `<span class="s2">Chiêu riêng: ${d.sig.n}</span> (${d.sig.cd}s): ${d.sig.d}`;
+    + `<span class="s2">Chiêu riêng: ${d.sig.n}</span> (${d.sig.cd}s): ${d.sig.d}<br>`
+    + `<a href="#" id="infoDex">Xem lịch sử và thông tin ${d.name} →</a>`;
+  $('infoDex').onclick = e => { e.preventDefault(); dexUI.open(d); };
 }
 R.forEach(d => {
   const el = document.createElement('div'); el.className = 'card'; el.dataset.id = d.id;

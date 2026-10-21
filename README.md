@@ -17,6 +17,7 @@ src/
   core/      config.js (kích thước, canvas, font), utils.js (hàm màu)
   data/      types.js (18 hệ, tương khắc, vật phẩm, thời tiết), maps.js (6 sân đấu),
              music.js (7 bản nhạc: menu + mỗi sân một bài, id bài = id sân)
+             pokedex.js (Pokédex: số liệu PokeAPI + mô tả các bản game, dịch tiếng Việt)
              pokemon.js (danh sách Pokémon, chỉ số, chiêu)
              pmd-anim.js (thông số hoạt ảnh)
   audio/     sound.js (hiệu ứng âm thanh, nhạc nền)
@@ -24,7 +25,7 @@ src/
              arena.js (nền sân), draw.js (vẽ mọi thứ trên màn hình)
   battle/    state.js (trận đấu, Fighter), terrain.js (địa hình sân), effects.js, combat.js (sát thương, chiêu),
              ai.js (AI + phím), update.js (cập nhật mỗi khung hình)
-  ui/        controls.js (nút, cảm ứng, bàn phím), menu.js (màn chọn đội), netui.js (giao diện PvP)
+  ui/        controls.js (nút, cảm ứng, bàn phím), menu.js (màn chọn đội), netui.js (giao diện PvP), pokedex.js (màn hình Pokédex)
   net/       net.js (PvP online: ghép trận, phòng mã/QR, đồng bộ trận qua Supabase Realtime)
   styles/    main.css, fonts.css
   main.js    Vòng lặp game (nạp cuối cùng)
@@ -44,6 +45,7 @@ Thêm file mới thì phải thêm thẻ `<script>` đúng chỗ: file dùng bi�
 1. Thêm 1 dòng `P(...)` vào `src/data/pokemon.js` (xem các dòng có sẵn để biết thứ tự tham số).
 2. Tạo thư mục `assets/pokemon/<số Pokédex>/` gồm `portrait.png` và các file hoạt ảnh PMD.
 3. Thêm thông số hoạt ảnh vào `src/data/pmd-anim.js`.
+3b. Thêm mục Pokédex vào `src/data/pokedex.js` (số liệu lấy từ pokeapi.co, mô tả dịch từ mục flavor text).
 4. Chạy `npm test`.
 
 ## Chạy và kiểm thử trên máy

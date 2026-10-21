@@ -59,6 +59,18 @@ ok(await E(() => [...document.querySelectorAll('#maps .tab')].every(b => { b.cli
 ok(await E(() => { document.querySelector('#maps .tab[data-k="random"]').click(); return mapPick === 'random'; }), 'Chọn lại sân ngẫu nhiên');
 ok(await E(() => { const e = enemyTeam(R.filter(d => d.g === 'legend').slice(0, 6)); return e.length === 6 && e.every(d => d.g === 'legend'); }), 'Đội đối thủ cùng nhóm với đội bạn');
 
+// ---------- 2b. Pokédex ----------
+group = 'Pokédex';
+ok(await E(() => R.every(d => { const x = DEX[d.dex]; return x && x.genus && x.gen >= 1 && x.region && x.h > 0 && x.w > 0 && x.abil.length && x.evo.length && x.e.length >= 2 && x.e.every(([v, t]) => v && t.length > 20); })), 'Đủ dữ liệu Pokédex cho 41 con (phân loại, thế hệ, vùng, cao/nặng, đặc tính, tiến hoá, ≥2 mô tả)');
+ok(await E(() => R.every(d => (DEX[d.dex].kind === 'leg') === (d.g === 'legend' || ['p384', 'p800', 'p791', 'p792'].includes(d.id)) || d.g === 'myth' || d.g === 'cosmic')), 'Nhãn Huyền thoại khớp với dữ liệu gốc');
+await E(() => { picks = []; refresh(); });  // các bài test menu ở trên để lại đội 6 con
+ok(await E(() => { document.querySelector('.card[data-id="p150"] .dx-i').click(); const t = document.getElementById('dexBox').textContent; return document.getElementById('dex').style.display === 'flex' && /MEWTWO/.test(t) && /Di Truyền/.test(t) && /Thế hệ 1/.test(t) && /Red \(1996\)/.test(t) && /Psystrike/.test(t) && picks.length === 0; }), 'Nút i trên thẻ mở Pokédex (không chọn nhầm vào đội), đủ thông tin, lịch sử, chiêu');
+ok(await E(() => { const t = document.getElementById('dexBox').textContent; return /Yếu trước:.*BÓNG TỐI x2/.test(t) && /Kháng:.*GIÁC ĐẤU x0.5/.test(t); }), 'Bảng tương khắc của Mewtwo đúng (yếu Bóng tối/Ma/Bọ, kháng Giác đấu)');
+ok(await E(() => { document.getElementById('dxNext').click(); const a = /MEW\b/.test(document.querySelector('.dx-nm').textContent) || true; const n1 = document.querySelector('.dx-nm').textContent; document.getElementById('dxPrev').click(); return n1 !== 'MEWTWO' && document.querySelector('.dx-nm').textContent === 'MEWTWO'; }), 'Nút ◀ ▶ chuyển Pokémon trước/sau');
+ok(await E(() => { document.getElementById('dxPick').click(); const a = picks.includes('p150'); document.getElementById('dxPick').click(); const b = !picks.includes('p150'); document.getElementById('dxClose').click(); return a && b && document.getElementById('dex').style.display === 'none'; }), 'CHỌN VÀO ĐỘI / BỎ KHỎI ĐỘI ngay trong Pokédex, nút ĐÓNG');
+ok(await E(() => { document.querySelector('.card[data-id="p25"]').click(); const l = document.getElementById('infoDex'); l.click(); const ok2 = /PIKACHU/.test(document.getElementById('dexBox').textContent) && /Pichu → <b>Pikachu<\/b> → Raichu/.test(document.getElementById('dexBox').innerHTML); dexUI.close(); document.querySelector('.card[data-id="p25"]').click(); return ok2; }), 'Liên kết trong khung thông tin mở Pokédex; chuỗi tiến hoá Pichu → Pikachu → Raichu');
+ok(await E(() => { document.getElementById('dexBtn').click(); const ok2 = document.getElementById('dex').style.display === 'flex'; dexUI.close(); return ok2; }), 'Nút POKÉDEX ở menu');
+
 // ---------- 3. Bàn phím và nút trong trận ----------
 group = 'Điều khiển';
 await E(() => TT.setup(['PIKACHU', 'CHARIZARD'], ['SNORLAX', 'MEW']));
