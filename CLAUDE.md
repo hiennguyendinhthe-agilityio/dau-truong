@@ -2,7 +2,7 @@
 
 - Đọc README.md để nắm cấu trúc. Không gộp code lại thành một file.
 - Code trong `src/` là script thường chia sẻ biến toàn cục theo thứ tự `<script>` trong index.html. Không đổi sang ES module nếu chưa được yêu cầu.
-- Không sửa tay `sw.js`; chạy `node tools/gen-sw.mjs` sau khi thêm/xoá/đổi file trong `src/` hoặc `assets/`.
+- Không sửa tay `sw.js` và `src/core/version.js`; chạy `node tools/gen-sw.mjs` sau khi thêm/xoá/đổi file trong `src/` hoặc `assets/`.
 - Trước khi commit: chạy `npm run test:all` và chỉ commit khi tất cả ĐẠT. Thêm tính năng mới thì thêm kiểm thử vào tests/features.mjs. Báo kết quả kiểm thử thật cho người dùng.
 - Người dùng nói tiếng Việt, không phải lập trình viên: giải thích ngắn, dễ hiểu.
 - Không dùng nhạc/hình có bản quyền mới ngoài các nguồn ghi trong README; nhạc mới dùng nguồn CC0.

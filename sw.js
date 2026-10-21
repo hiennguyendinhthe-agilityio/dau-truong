@@ -1,6 +1,6 @@
 // FILE TỰ SINH bởi tools/gen-sw.mjs — không sửa tay.
 // Lưu toàn bộ game vào máy ở lần mở đầu tiên để lần sau chơi được cả khi không có mạng.
-const CACHE = 'dau-truong-8c5a015251';
+const CACHE = 'dau-truong-05d96f86ed';
 const FILES = [
  "apple-touch-icon.png",
  "assets/fonts/press-start-2p-1.woff2",
@@ -263,6 +263,7 @@ const FILES = [
  "src/battle/update.js",
  "src/core/config.js",
  "src/core/utils.js",
+ "src/core/version.js",
  "src/data/maps.js",
  "src/data/music.js",
  "src/data/pmd-anim.js",
@@ -289,5 +290,6 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(caches.open(CACHE).then(c => c.match(e.request, { ignoreSearch: true }).then(hit =>
     hit && e.request.url.includes('/assets/') ? hit :
-      fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }).catch(() => hit || c.match('index.html')))));
+      // no-cache: luôn hỏi lại GitHub Pages xem file có đổi không (bỏ qua bộ nhớ đệm 10 phút của trình duyệt)
+      fetch(e.request, { cache: 'no-cache' }).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; }).catch(() => hit || c.match('index.html')))));
 });

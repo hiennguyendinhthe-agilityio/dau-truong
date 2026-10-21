@@ -17,4 +17,17 @@ requestAnimationFrame(frame);
 
 
 // Lưu game vào máy để chơi không cần mạng (chỉ khi mở qua http/https)
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
+// Tự cập nhật: có bản mới thì tải lại trang (khi đang ở menu); mỗi lần mở lại app thì kiểm tra bản mới
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => { }); });
+  }).catch(() => { });
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadSW || reloading) return;
+    const go = () => { if (reloading) return; reloading = true; location.reload(); };
+    if (!G) go(); else { G.banner = { s: 'CÓ BẢN MỚI: VỀ MENU ĐỂ CẬP NHẬT', col: '#7ff8ff', life: 3, max: 3 }; const iv = setInterval(() => { if (!G) { clearInterval(iv); go(); } }, 1000); }
+  });
+}
+document.getElementById('appVer').textContent = 'Phiên bản ' + APP_VERSION;
