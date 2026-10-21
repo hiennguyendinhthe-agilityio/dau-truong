@@ -59,6 +59,26 @@ ok(await E(() => [...document.querySelectorAll('#maps .tab')].every(b => { b.cli
 ok(await E(() => { document.querySelector('#maps .tab[data-k="random"]').click(); return mapPick === 'random'; }), 'Chọn lại sân ngẫu nhiên');
 ok(await E(() => { const e = enemyTeam(R.filter(d => d.g === 'legend').slice(0, 6)); return e.length === 6 && e.every(d => d.g === 'legend'); }), 'Đội đối thủ cùng nhóm với đội bạn');
 
+// ---------- 2a. Bố cục điện thoại ----------
+group = 'Bố cục màn chọn đội';
+{
+  const ph = await browser.newContext({ ...devices['iPhone 13'] }), pp = await ph.newPage(); await pp.goto(url); await pp.waitForTimeout(1500);
+  const vis = id => pp.$eval(id, e => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && r.height > 0; });
+  ok(await vis('#start') && await vis('#findBtn') && await vis('#inviteBtn') && await vis('#joinBtn'), 'Mở game trên iPhone: thấy ngay các nút vào trận, không cần cuộn');
+  await pp.evaluate(() => { document.getElementById('menu').scrollTop = 900; }); await pp.waitForTimeout(200);
+  ok(await vis('#start') && await vis('#findBtn'), 'Cuộn giữa danh sách Pokémon: nút vào trận vẫn luôn hiện ở đáy');
+  ok(await pp.evaluate(() => { const last = document.getElementById('actbar').previousElementSibling; document.getElementById('menu').scrollTop = 1e6; const c = last.getBoundingClientRect(); return c.bottom <= document.getElementById('actbar').getBoundingClientRect().top + 1; }), 'Cuộn hết cỡ: thanh nút không che mất nội dung cuối menu');
+  await pp.evaluate(() => { picks = R.slice(0, 4).map(d => d.id); refresh(); });
+  ok(/4\/6/.test(await pp.textContent('#teamCount')) && await pp.$eval('#start', e => e.disabled), 'Thanh nút báo số Pokémon đã chọn (ĐỘI 4/6), chưa đủ thì khoá nút');
+  await pp.evaluate(() => { picks = R.slice(0, 6).map(d => d.id); refresh(); });
+  ok(/sẵn sàng/.test(await pp.textContent('#teamCount')) && !(await pp.$eval('#start', e => e.disabled)), 'Đủ 6 con: báo sẵn sàng, mở khoá nút');
+  await pp.tap('.card[data-id="p150"] .dx-i'); await pp.waitForTimeout(300);
+  await pp.evaluate(() => { document.getElementById('dexBox').scrollTop = 600; }); await pp.waitForTimeout(200);
+  ok(await vis('#dxX'), 'Pokédex: nút X luôn hiện ở góc trên khi cuộn');
+  await pp.tap('#dxX'); ok(await pp.$eval('#dex', e => e.style.display === 'none'), 'Bấm X đóng Pokédex');
+  await ph.close();
+}
+
 // ---------- 2b. Pokédex ----------
 group = 'Pokédex';
 ok(await E(() => R.every(d => { const x = DEX[d.dex]; return x && x.genus && x.gen >= 1 && x.region && x.h > 0 && x.w > 0 && x.abil.length && x.evo.length && x.e.length >= 2 && x.e.every(([v, t]) => v && t.length > 20); })), 'Đủ dữ liệu Pokédex cho 41 con (phân loại, thế hệ, vùng, cao/nặng, đặc tính, tiến hoá, ≥2 mô tả)');

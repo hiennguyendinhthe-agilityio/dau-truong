@@ -59,6 +59,7 @@ applyMap();
 function refresh() {
   grid.querySelectorAll('.card').forEach(el => { const i = picks.indexOf(el.dataset.id); el.classList.toggle('sel', i >= 0); el.querySelector('.num').textContent = i >= 0 ? i + 1 : ''; });
   slots.innerHTML = ''; for (let i = 0; i < 6; i++) { const s = document.createElement('div'); s.className = 'slot' + (picks[i] ? ' on' : ''); if (picks[i]) s.appendChild(sprCanvas(picks[i])); slots.appendChild(s); }
+  $('teamCount').innerHTML = picks.length === 6 ? 'ĐỘI <b>6/6</b> · sẵn sàng!' : `ĐỘI <b>${picks.length}/6</b> · chọn thêm ${6 - picks.length} Pokémon`;
   const st = $('start'); st.disabled = picks.length !== 6; st.textContent = picks.length === 6 ? 'ĐẤU VỚI AI' : `CHỌN THÊM ${6 - picks.length}`;
   for (const id of ['findBtn', 'inviteBtn', 'joinBtn']) $(id).disabled = picks.length !== 6;
   if (NET.pendingCode) $('joinBtn').textContent = 'VÀO PHÒNG ' + NET.pendingCode;

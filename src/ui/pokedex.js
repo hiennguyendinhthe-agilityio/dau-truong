@@ -19,6 +19,7 @@ const dexUI = {
     const mv = (lab, cls, o, desc) => `<p class="mv"><span class="${cls}">${lab}: ${o.n}</span> <span class="tb" style="background:${TYPE_COL[o.t]};color:${TYPE_FG(o.t)}">${TYPE_VI[o.t]}</span><br>${desc}</p>`;
     const sel = picks.includes(d.id);
     $('dexBox').innerHTML = `
+      <button class="dx-x" id="dxX" title="Đóng" aria-label="Đóng">×</button>
       <div class="dx-head"><canvas id="dexAnim" width="96" height="96"></canvas><div>
         <div class="dx-no">#${String(d.dex).padStart(3, '0')}</div><div class="dx-nm">${d.name}</div>
         <div class="dx-gn">${x.genus}</div><div>${types}</div>
@@ -49,7 +50,7 @@ const dexUI = {
       if (k >= 0) { picks.splice(k, 1); Snd.unpick(); } else if (picks.length < 6) { picks.push(d.id); Snd.pick(); } else return;
       refresh(); this.open(d);
     };
-    $('dxClose').onclick = () => this.close();
+    $('dxClose').onclick = () => this.close(); $('dxX').onclick = () => this.close();
     this.startAnim(d);
   },
   close() { $('dex').style.display = 'none'; cancelAnimationFrame(this.anim); this.anim = null; Snd.click(); },
